@@ -1,0 +1,108 @@
+---
+title: "Sentiment_Ananlysis"
+author: "Aishwarya K"
+date: "01/09/2019"
+output: html_document
+---
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r import_libraries, results='hide', warning=FALSE}
+# load in the libraries we'll need
+
+# Reference : https://www.tidytextmining.com/sentiment.html
+
+library(tidyverse)
+library(tidytext)
+library(glue)
+library(stringr)
+library(data.table)
+library(dplyr)
+library(bit64)
+library(ggplot2)
+library(wordcloud)
+library(reshape2)
+```
+```{r}
+df = fread("/home/aishwarya/Documents/Academia/Sem 5/DA/DA19_A2_Datasets/dataset/tweets_kabir_singh.csv")
+```
+```{r}
+df <- select(df, author, text)
+```
+```{r sentiment_tokens, results='hide'}
+get_sentiments("afinn")
+get_sentiments("nrc")
+get_sentiments("bing")
+```
+```{r}
+# tokenize
+tokens <- tibble(text = df$text) %>% unnest_tokens(word, text)
+```
+
+
+```{r}
+more_sentiments <- tokens %>%
+  inner_join(get_sentiments("nrc")) %>% # pull out only sentiment words
+  count(sentiment) %>% # count the # of positive & negative words
+  spread(sentiment, n, fill = 0) %>% # made data wide rather than narrow
+  mutate(sentiment = positive - negative) # # of positive words - # of negative words
+table(more_sentiments)
+barplot(table(more_sentiments))
+```
+```{r}
+kabir_singh_sentiment <- tokens %>%
+  inner_join(get_sentiments("bing")) %>% # pull out only sentiment words
+  count(sentiment) %>% # count the # of positive & negative words
+  spread(sentiment, n, fill = 0) %>% # made data wide rather than narrow
+  mutate(sentiment = positive - negative) # # of positive words - # of negative owrds
+kabir_singh_sentiment
+```
+```{r}
+#ggplot(kabir_singh_sentiment, aes(x=sentiment))
+```
+
+```{r}
+bing_word_counts <- tokens %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+bing_word_counts
+```
+```{r}
+bing_word_counts %>%
+  group_by(sentiment) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment",
+       x = NULL) +
+  coord_flip()
+```
+```{r}
+tokens %>%
+  anti_join(stop_words) %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 100))
+```
+```{r}
+tokens %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("red", "cornflowerblue"),
+                   max.words = 100)
+```
+
+
+
+
+

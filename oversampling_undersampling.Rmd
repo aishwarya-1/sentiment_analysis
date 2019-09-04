@@ -1,0 +1,39 @@
+---
+title: "Oversampling_Vs_Undersampling"
+author: "Aishwarya K"
+date: "03/09/2019"
+output: html_document
+---
+
+Question -2 wants you to define upsampling and downsampling and looking at that dataset subject.csv, if there is skewness in the data, which of the two would you choose and why?
+
+```{r}
+library(data.table)
+library(dplyr)
+#library(ROSE)
+```
+```{r}
+df <- fread("/home/aishwarya/Documents/Academia/Sem 5/DA/DA19_A2_Datasets/dataset/subject.csv")
+```
+```{r}
+df
+```
+```{r}
+dft = table(df$`Dominant hand`)
+barplot(dft)
+```
+<p>
+1. Undersampling
+This method works with majority class. It reduces the number of observations from majority class to make the data set balanced. This method is best to use when the data set is huge and reducing the number of training samples helps to improve run time and storage troubles.
+
+2. Oversampling
+This method works with minority class. It replicates the observations from minority class to balance the data. It is also known as upsampling.
+<p>
+
+<p>
+The dataset subject.csv is a small dataset. Hence, oversampling of data of the minority class is preferred.
+
+
+```{r}
+
+```
