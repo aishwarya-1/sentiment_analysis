@@ -28,6 +28,7 @@ library(bit64)
 library(ggplot2)
 library(wordcloud)
 library(reshape2)
+library(textstem)
 ```
 ```{r}
 df = fread("/home/aishwarya/Documents/Academia/Sem 5/DA/DA19_A2_Datasets/dataset/tweets_kabir_singh.csv")
@@ -42,7 +43,9 @@ get_sentiments("bing")
 ```
 ```{r}
 # tokenize
-tokens <- tibble(text = df$text) %>% unnest_tokens(word, text)
+docs1 <- tibble(text = df$text)
+tokens <- docs1 %>% unnest_tokens(word, text)
+
 ```
 
 
@@ -52,8 +55,14 @@ more_sentiments <- tokens %>%
   count(sentiment) %>% # count the # of positive & negative words
   spread(sentiment, n, fill = 0) %>% # made data wide rather than narrow
   mutate(sentiment = positive - negative) # # of positive words - # of negative words
-table(more_sentiments)
-barplot(table(more_sentiments))
+
+more_sentiments
+j = 0
+for (i in more_sentiments) {
+  v[j] = i;
+  j = j+1;
+}
+barplot(v, ylim = c(0, 12000), names.arg = )
 ```
 ```{r}
 kabir_singh_sentiment <- tokens %>%
@@ -61,7 +70,9 @@ kabir_singh_sentiment <- tokens %>%
   count(sentiment) %>% # count the # of positive & negative words
   spread(sentiment, n, fill = 0) %>% # made data wide rather than narrow
   mutate(sentiment = positive - negative) # # of positive words - # of negative owrds
-kabir_singh_sentiment
+
+v = c(kabir_singh_sentiment[["positive"]], kabir_singh_sentiment[["negative"]]);
+barplot(v, names.arg = c("Positive", "Negative"), ylim = c(0, 12000), main = "Number of Positive and Negative Words")
 ```
 ```{r}
 #ggplot(kabir_singh_sentiment, aes(x=sentiment))
@@ -101,6 +112,7 @@ tokens %>%
   comparison.cloud(colors = c("red", "cornflowerblue"),
                    max.words = 100)
 ```
+
 
 
 
